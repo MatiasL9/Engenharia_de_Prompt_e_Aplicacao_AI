@@ -5,9 +5,9 @@ Aqui você vai encontrar projetos que mostram a minha maneira de construir com c
 ---
 
 ## O que eu faço
-- Crio programas e aplicativos divertidos 
+- Crio programas e aplicativos
 - Gosto de realizar testes com linguagens como **Python**
-- Estou aprendendo sobre **inteligência artificial**
+- Estou aperfeiçoando minhas habilidades em **inteligência artificial**, **Programação em Python**, **interface de usuario** e **Prototipagem de sistemas**.
 
 ---
 
