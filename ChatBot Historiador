@@ -1,0 +1,84 @@
+# Importa biblioteca requests para buscar conteúdo de sites
+import requests
+from bs4 import BeautifulSoup
+
+# Importa pipeline de Pergunta-Resposta (modelo leve da HuggingFace)
+from transformers import pipeline
+
+# -------------------------------
+# 1. Definir a persona do chatbot
+# -------------------------------
+# Persona define o estilo do bot: amigável e especialista em História Brasileira
+persona = """
+Você é um chatbot chamado HistoriadorBot.
+Seu papel é explicar guerras e batalhas da História Brasileira
+de forma simples e clara, como um professor paciente.
+"""
+
+# -------------------------------
+# 2. Configurar o modelo LLM
+# -------------------------------
+# Usamos um modelo pequeno de Pergunta-Resposta para não pesar na memória
+qa_pipeline = pipeline("question-answering", model="distilbert-base-cased-distilled-squad")
+
+# -------------------------------
+# 3. Função para buscar conteúdo de sites
+# -------------------------------
+def get_site_content(url, max_chars=8000):
+    """
+    Busca conteúdo de um site específico.
+    Faz fatiamento [:max_chars] para não lotar a memória da IA.
+    """
+    try:
+        # Faz requisição HTTP ao site
+        response = requests.get(url)
+        # Usa BeautifulSoup para extrair texto
+        soup = BeautifulSoup(response.text, "html.parser")
+        # Junta todo texto visível
+        text = " ".join(p.get_text() for p in soup.find_all("p"))
+        # Limita tamanho para evitar token limit
+        return text[:max_chars]
+    except Exception as e:
+        return f"Erro ao buscar conteúdo: {e}"
+
+# -------------------------------
+# 4. Loop de interação no console
+# -------------------------------
+def chatbot():
+    print("👋 Olá! Eu sou o HistoriadorBot. Pergunte sobre guerras e batalhas brasileiras.")
+    while True:
+        # Usuário digita a pergunta
+        question = input("\nVocê: ")
+
+        # Se digitar 'sair', o programa termina
+        if question.lower() in ["sair", "exit", "quit"]:
+            print("HistoriadorBot: Até logo! 👋")
+            break
+
+        # URLs de sites confiáveis sobre História Brasileira
+        urls = [
+            "https://pt.wikipedia.org/wiki/Hist%C3%B3ria_do_Brasil",
+            "https://www.todamateria.com.br/guerras-do-brasil/",
+            "https://brasilescola.uol.com.br/historiab/guerras-no-brasil.htm"
+        ]
+
+        # Busca conteúdo dos sites e junta em um único contexto
+        context = ""
+        for url in urls:
+            context += get_site_content(url)
+
+        # Usa modelo para responder baseado no contexto
+        answer = qa_pipeline(question=question, context=context)
+
+        # Limita resposta a no máximo 3 linhas
+        response = answer['answer']
+        response = "\n".join(response.splitlines()[:3])
+
+        # Mostra resposta com persona
+        print(f"HistoriadorBot ({persona.strip().splitlines()[0]}): {response}")
+
+# -------------------------------
+# 5. Executar chatbot
+# -------------------------------
+if __name__ == "__main__":
+    chatbot()
