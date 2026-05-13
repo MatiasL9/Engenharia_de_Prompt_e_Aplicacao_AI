@@ -12,6 +12,7 @@ Aqui você vai encontrar projetos que mostram a minha maneira de construir com c
 ---
 
 ## Projetos em destaque
+ChatBot Historiador
 
 ---
 
